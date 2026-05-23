@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]  # main으로 PR 올릴 때만 실행
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # GitHub 서버에서 어떤 OS로 실행할지
+    steps:
+      - uses: actions/checkout@v4
+        # 내 레포 코드를 GitHub 서버에 git clone 해오는 단계
+
+      - uses: astral-sh/setup-uv@v5
+        # uv를 GitHub 서버에 설치 (기본 설치 안 돼있어서 필요)
+
+      - name: Install dependencies
+        run: uv sync
+        # uv.lock 보고 의존성 설치
+
+      - name: Run tests
+        run: uv run pytest tests/
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # GitHub Secrets에 등록한 API 키 주입
+          DB_PATH: ":memory:"
+          # SQLite 인메모리 모드로 테스트 (파일 생성 없이)
