@@ -3,6 +3,8 @@ name: CI
 on:
   pull_request:
     branches: [main]  # main으로 PR 올릴 때만 실행
+  push:
+    branches: [main]
 
 jobs:
   test:
