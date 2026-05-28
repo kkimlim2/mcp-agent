@@ -15,9 +15,8 @@ def memory_db():
     return conn
 
 
-@pytest.mark.asyncio
-async def test_log_evaluation_saves_to_db(memory_db):
-    result = await log_evaluation(
+def test_log_evaluation_saves_to_db(memory_db):
+    result = log_evaluation(
         agent_id="test-agent",
         prompt_id="prompt-001",
         query="환불 방법이 뭐야?",
