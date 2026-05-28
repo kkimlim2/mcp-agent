@@ -39,7 +39,7 @@ async def evaluate_agent_response(prompt: str, response: str, criteria: str) -> 
     return json.loads(raw)
 
 
-async def log_evaluation(
+def log_evaluation(
     agent_id: str,
     prompt_id: str,
     query: str,
