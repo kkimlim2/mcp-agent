@@ -1,7 +1,7 @@
-# src/agent_eval/server.py
 from mcp.server.fastmcp import FastMCP
 from agent_eval.tools.evaluate import evaluate_agent_response as _evaluate
 from agent_eval.tools.evaluate import log_evaluation as _log
+from agent_eval.tools.metrics import get_metrics_summary as _get_metrics
 
 mcp = FastMCP("agent-eval")
 
@@ -41,6 +41,12 @@ async def log_evaluation(
         metadata=metadata,
         tags=tags,
     )
+
+
+@mcp.tool()
+def get_metrics_summary(agent_id: str, prompt_id: str) -> dict:
+    """Get aggregated evaluation metrics for a specific agent and prompt."""
+    return _get_metrics(agent_id=agent_id, prompt_id=prompt_id)
 
 
 if __name__ == "__main__":
