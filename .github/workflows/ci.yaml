@@ -12,18 +12,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         # 내 레포 코드를 GitHub 서버에 git clone 해오는 단계
-
       - uses: astral-sh/setup-uv@v5
         # uv를 GitHub 서버에 설치 (기본 설치 안 돼있어서 필요)
+        with:
+          enable-cache: true   # uv 캐시 재사용 -> CI 빨라짐
 
       - name: Install dependencies
-        run: uv sync
-        # uv.lock 보고 의존성 설치
+        run: uv sync --frozen   # lock 그대로 따름, 안 맞으면 실패
 
       - name: Run tests
         run: uv run pytest tests/
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          # GitHub Secrets에 등록한 API 키 주입
           DB_PATH: ":memory:"
           # SQLite 인메모리 모드로 테스트 (파일 생성 없이)
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create dummy .env   # compose가 .env 참조 → CI엔 없으니 채워줌
+        run: |
+          cat > .env <<EOF
+          DB_PATH=agent_eval.db
+          LLM_BASE_URL=http://ollama:11434/v1
+          LLM_MODEL=qwen2.5:0.5b
+          EOF
+
+      - name: Build images
+        run: docker compose build   # up 아니라 build만 (모델 pull 안 함)
