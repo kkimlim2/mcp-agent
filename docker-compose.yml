@@ -1,0 +1,34 @@
+services:
+  mcp:
+    build: .
+    env_file: .env
+    volumes:
+      - ./agent_eval.db:/app/agent_eval.db
+    depends_on:
+      ollama-init:
+        condition: service_completed_successfully
+
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  ollama-init:
+    image: ollama/ollama
+    depends_on:
+      ollama:
+        condition: service_healthy        #  서버 준비될 때까지 대기
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    command: ["pull", "qwen2.5:0.5b"]      #  쉘 없이 ollama pull 직접 실행
+    restart: "no"
+
+volumes:
+  ollama_data:
